@@ -1,0 +1,33 @@
+{
+  "name": "knot-modbus-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "eslint-config-airbnb": "^17.1.0",
+    "react": "^16.8.4",
+    "react-dom": "^16.8.4",
+    "react-scripts": "2.1.8"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "lint": "eslint --fix ."
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "pre-commit": [
+    "lint"
+  ],
+  "devDependencies": {
+    "pre-commit": "^1.2.2"
+  }
+}

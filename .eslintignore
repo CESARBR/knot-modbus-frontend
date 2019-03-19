@@ -1,0 +1,5 @@
+**/*{.,-}min.js
+/src/App.test.js
+/src/serviceWorker.js
+node_modules
+build
