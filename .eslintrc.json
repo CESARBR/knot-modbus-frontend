@@ -4,7 +4,8 @@
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
     "react/prefer-stateless-function": [0, { "ignorePureComponents": true }],
     "no-param-reassign": [2, { "props": false }],
-    "comma-dangle":[2,"never"]
+    "comma-dangle":[2,"never"],
+    "class-methods-use-this": "off"
   },
   "env": {
     "browser": true,
