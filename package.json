@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "dbus": "^1.0.3",
     "eslint-config-airbnb": "^17.1.0",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
@@ -10,6 +11,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "start_dev:server": "babel-node server",
+    "start:server": "babel server --out-dir build_server && node build_server",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
@@ -28,6 +31,9 @@
     "lint"
   ],
   "devDependencies": {
-    "pre-commit": "^1.2.2"
+    "pre-commit": "^1.2.2",
+    "babel-cli": "^6.26.0",
+    "babel-plugin-module-resolver": "^3.2.0",
+    "babel-preset-env": "^1.7.0"
   }
 }

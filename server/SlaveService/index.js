@@ -1,15 +1,18 @@
+import DbusService from './DbusService';
+
 class SlaveService {
-  constructor(protocol, config) { // eslint-disable-line no-unused-vars
+  constructor(protocol, config) {
     switch (protocol) {
       case 'DBUS':
-        // init service
+        this.service = new DbusService(config);
         break;
       default:
         break;
     }
   }
 
-  execute() { // eslint-disable-line class-methods-use-this
+  execute() {
+    this.service.execute();
   }
 
   list() { // eslint-disable-line class-methods-use-this
