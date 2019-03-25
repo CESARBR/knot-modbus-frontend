@@ -15,7 +15,8 @@ class SlaveService {
     this.service.execute();
   }
 
-  list() { // eslint-disable-line class-methods-use-this
+  list() {
+    return this.service.list();
   }
 
   get(id) { // eslint-disable-line no-unused-vars, class-methods-use-this
