@@ -19,6 +19,10 @@
   color: white;
 }
 
+.load-button {
+  margin-top: 10px!important;
+}
+
 .App-link {
   color: #61dafb;
 }
