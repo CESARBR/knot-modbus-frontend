@@ -23,6 +23,10 @@ function mapObjectsToSlaves(objects) {
     .value();
 }
 
+function mapInterfaceToSlave(iface) {
+  return mapObjectsToSlaves([iface])[0];
+}
+
 class DbusServices {
   constructor(config) {
     process.env.DISPLAY = ':0';
@@ -38,6 +42,24 @@ class DbusServices {
     return mapObjectsToSlaves(objects);
   }
 
+  async startSlaveMonitoring() {
+    const iface = await this.getInterface(SERVICE_NAME, OBJECT_PATH, OBJECT_MANAGER_INTERFACE_NAME);
+    this.slaves = await this.loadSlaves();
+    iface.on('InterfacesAdded', (objPath, addedInterface) => {
+      const slave = mapInterfaceToSlave(addedInterface);
+      // The slave can be undefined if the interface added is not DEVICE_INTERFACE
+      if (slave) {
+        console.log('Slave added:', slave);
+        this.slaves = _.concat(this.slaves, slave);
+      }
+    });
+    console.log('Monitoring slaves being added');
+  }
+
+  async stopSlaveMonitoring() {
+    this.slaves = [];
+  }
+
   execute() {
     this.getInterface(DBUS_SERVICE_NAME, DBUS_OBJECT_PATH, DBUS_INTERFACE_NAME)
       .then(async (iface) => {
@@ -49,12 +71,19 @@ class DbusServices {
 
           if (!oldOwner) {
             console.log('Slave service is up');
-            this.slaves = await this.loadSlaves();
+            this.startSlaveMonitoring();
           } else if (!newOwner) {
             console.log('Slave service is down');
+            this.stopSlaveMonitoring();
           }
         });
-        this.slaves = await this.loadSlaves();
+
+        this.startSlaveMonitoring()
+          .catch((err) => {
+            // TODO: parse dbus error
+            console.error(err);
+            throw err;
+          });
       })
       .catch((err) => {
         // TODO: parse dbus error
