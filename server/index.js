@@ -23,4 +23,7 @@ app.get('/slaves', (req, res) => {
   res.send(devServ.list());
 });
 
+devServ.onAdded(slave => console.log('callback onAdded:', slave));
+devServ.onRemoved(slave => console.log('callback onRemoved:', slave));
+
 app.listen(process.env.PORT || 80);

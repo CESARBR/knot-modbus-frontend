@@ -21,6 +21,14 @@ class SlaveService {
 
   get(id) { // eslint-disable-line no-unused-vars, class-methods-use-this
   }
+
+  onAdded(addedCb) {
+    this.service.addedCb = addedCb;
+  }
+
+  onRemoved(removedCb) {
+    this.service.removedCb = removedCb;
+  }
 }
 
 export default SlaveService;
