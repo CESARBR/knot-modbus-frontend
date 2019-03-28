@@ -19,7 +19,8 @@ class SlaveService {
     return this.service.list();
   }
 
-  get(id) { // eslint-disable-line no-unused-vars, class-methods-use-this
+  get(id) {
+    return this.service.get(id);
   }
 
   onAdded(addedCb) {

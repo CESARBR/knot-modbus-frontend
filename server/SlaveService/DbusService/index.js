@@ -131,7 +131,8 @@ class DbusServices {
     return this.slaves;
   }
 
-  get(id) { // eslint-disable-line no-unused-vars, class-methods-use-this
+  get(id) {
+    return _.find(this.slaves, { id });
   }
 }
 

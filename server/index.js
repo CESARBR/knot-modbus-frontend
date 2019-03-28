@@ -26,4 +26,8 @@ app.get('/slaves', (req, res) => {
 devServ.onAdded(slave => console.log('callback onAdded:', slave));
 devServ.onRemoved(slave => console.log('callback onRemoved:', slave));
 
+app.get('/slave/:id', (req, res) => {
+  res.send(devServ.get(Number(req.params.id)));
+});
+
 app.listen(process.env.PORT || 80);
