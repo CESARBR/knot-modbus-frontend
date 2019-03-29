@@ -2,10 +2,18 @@
 
 A dashboard to modbus devices connected to KNoT
 
-## How to build and run
+## How to build
 
 `yarn`
 
+## Running for production 
+
 `yarn build`
 
-`PORT=3003 API_PORT=3003 yarn start:server`
+`yarn start:server`
+
+## Running for development
+
+`yarn start`
+
+`yarn start_dev:server`

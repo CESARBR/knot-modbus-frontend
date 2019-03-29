@@ -1,8 +1,9 @@
 const proxy = require('http-proxy-middleware');
+const config = require('config');
 
 module.exports = (app) => {
-  const apiHostname = process.env.API_HOSTNAME || process.env.API_HOST || 'localhost';
-  const apiPort = process.env.API_PORT || 3003;
+  const apiHostname = config.get('server.host');
+  const apiPort = config.get('server.port');
   const apiTarget = `http://${apiHostname}:${apiPort}`;
 
   app.use(proxy('/api', {

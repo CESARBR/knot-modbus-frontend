@@ -1,0 +1,10 @@
+{
+    "protocol": "PROTOCOL",
+    "slave": {
+        "address": "SLAVE_DBUS_ADDRESS"
+    },
+    "server": {
+        "HOST": "SERVER_HOST",
+        "PORT": "SERVER_PORT"
+    }
+}

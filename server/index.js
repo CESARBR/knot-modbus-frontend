@@ -1,10 +1,11 @@
 import express from 'express';
 import morgan from 'morgan';
 import path from 'path';
+import config from 'config';
 import setupProxy from '../src/setupProxy';
 import SlaveService from './SlaveService';
 
-const devServ = new SlaveService('DBUS', { address: 'tcp:host=localhost,port=55556' });
+const devServ = new SlaveService(config.get('protocol'), config.get('slave'));
 const app = express();
 
 app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] :response-time ms'));
@@ -30,4 +31,4 @@ app.get('/slave/:id', (req, res) => {
   res.send(devServ.get(Number(req.params.id)));
 });
 
-app.listen(process.env.PORT || 80);
+app.listen(config.get('server.port'));
