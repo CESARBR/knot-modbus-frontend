@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import Button from '@material-ui/core/Button';
-import SlaveService from './services/SlaveService';
+import SlaveService from './services/Slave';
 import SlaveCard from './components/SlaveCard';
 
 class App extends Component {
