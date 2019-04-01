@@ -41,6 +41,8 @@ class DbusServices {
     process.env.DBUS_SYSTEM_BUS_ADDRESS = config.address;
     this.bus = DBus.getBus('system');
     this.getInterface = promisify(this.bus.getInterface.bind(this.bus));
+    this.slaves = [];
+    this.idPathMap = {};
   }
 
   async loadSlaves() {
