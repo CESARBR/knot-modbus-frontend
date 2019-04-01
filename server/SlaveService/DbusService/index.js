@@ -38,7 +38,9 @@ function mapInterfaceToSlave(iface) {
 class DbusServices {
   constructor(config) {
     process.env.DISPLAY = ':0';
-    process.env.DBUS_SYSTEM_BUS_ADDRESS = config.address;
+    if (config.address) {
+      process.env.DBUS_SYSTEM_BUS_ADDRESS = config.address;
+    }
     this.bus = DBus.getBus('system');
     this.getInterface = promisify(this.bus.getInterface.bind(this.bus));
     this.slaves = [];
