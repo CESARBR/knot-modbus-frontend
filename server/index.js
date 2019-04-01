@@ -21,14 +21,22 @@ app.get('/', (req, res) => {
 });
 
 app.get('/slaves', (req, res) => {
-  res.send(devServ.list());
+  try {
+    res.send(devServ.list());
+  } catch (err) {
+    res.status(err.code).send(err.message);
+  }
 });
 
 devServ.onAdded(slave => console.log('callback onAdded:', slave));
 devServ.onRemoved(slave => console.log('callback onRemoved:', slave));
 
 app.get('/slave/:id', (req, res) => {
-  res.send(devServ.get(Number(req.params.id)));
+  try {
+    res.send(devServ.get(Number(req.params.id)));
+  } catch (err) {
+    res.status(err.code).send(err.message);
+  }
 });
 
 app.listen(config.get('server.port'));

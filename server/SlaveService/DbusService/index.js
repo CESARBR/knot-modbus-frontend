@@ -12,6 +12,8 @@ const OBJECT_PATH = '/';
 const SERVICE_NAME = 'br.org.cesar.modbus';
 const SLAVE_INTERFACE_NAME = `${SERVICE_NAME}.Slave1`;
 
+const INVALID_ARGUMENTS = `${SERVICE_NAME}.InvalidArgs`;
+
 function setKeysToLowerCase(obj) {
   return _.mapKeys(obj, (v, k) => k.toLowerCase());
 }
@@ -35,6 +37,20 @@ function mapInterfaceToSlave(iface) {
   return mapObjectsToSlaves([iface])[0];
 }
 
+function parseDbusError(err) {
+  let code;
+  switch (err.dbusName) {
+    case INVALID_ARGUMENTS:
+      code = 400;
+      break;
+    default:
+      code = 500;
+      break;
+  }
+  err.code = code;
+  return err;
+}
+
 class DbusServices {
   constructor(config) {
     process.env.DISPLAY = ':0';
@@ -45,6 +61,7 @@ class DbusServices {
     this.getInterface = promisify(this.bus.getInterface.bind(this.bus));
     this.slaves = [];
     this.idPathMap = {};
+    this.started = false;
   }
 
   async loadSlaves() {
@@ -92,11 +109,13 @@ class DbusServices {
     iface.on('InterfacesRemoved', objPath => this.removeSlave(objPath));
 
     console.log('Monitoring slaves being added and removed');
+    this.started = true;
   }
 
   async stopSlaveMonitoring() {
     this.slaves = [];
     this.idPathMap = {};
+    this.started = false;
   }
 
   execute() {
@@ -119,24 +138,33 @@ class DbusServices {
 
         this.startSlaveMonitoring()
           .catch((err) => {
-            // TODO: parse dbus error
             console.error(err);
-            throw err;
+            throw parseDbusError(err);
           });
       })
       .catch((err) => {
-        // TODO: parse dbus error
         console.error(err);
-        throw err;
+        throw parseDbusError(err);
       });
   }
 
   list() {
+    if (!this.started) {
+      const err = new Error('DBus service is unavailable');
+      err.code = 503;
+      throw err;
+    }
     return this.slaves;
   }
 
   get(id) {
-    return _.find(this.slaves, { id });
+    const slave = _.find(this.slaves, { id });
+    if (!slave) {
+      const error = new Error(`Not found slave ${id}`);
+      error.code = 404;
+      throw error;
+    }
+    return slave;
   }
 }
 
