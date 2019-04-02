@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import http from 'http';
 import Websocket from 'ws';
 import ConnectionHandler from './ConnectionHandler';

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import DBus from 'dbus';
 import { promisify } from 'util';
 import _ from 'lodash';

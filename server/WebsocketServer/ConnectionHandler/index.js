@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import shortid from 'shortid';
 import Client from './Client';
 
