@@ -1,9 +1,11 @@
 import http from 'http';
 import Websocket from 'ws';
+import ConnectionHandler from './ConnectionHandler';
 
 class WebsocketServer {
-  constructor(port) {
+  constructor(port, slaveService) {
     this.port = port;
+    this.slaveService = slaveService;
   }
 
   async start() {
@@ -12,7 +14,13 @@ class WebsocketServer {
 
     const wss = new Websocket.Server({ server });
     wss.on('connection', (socket) => {
-      this.socket = socket;
+      try {
+        const connectionHandler = new ConnectionHandler(socket, this.slaveService);
+        connectionHandler.start();
+      } catch (err) {
+        console.error(`Failed to start connection handler: ${err.message}`);
+        socket.close();
+      }
     });
     wss.on('close', () => console.log('Closed'));
     wss.on('error', err => console.error(err));
