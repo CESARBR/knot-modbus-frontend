@@ -11,6 +11,7 @@ class ConnectionHandler {
   start() {
     this.slaveService.onAdded(slave => this.client.send('slaveAdded', slave));
     this.slaveService.onRemoved(id => this.client.send('slaveRemoved', id));
+    this.slaveService.onUpdated((id, properties) => this.client.send('slaveUpdated', { id, properties }));
     this.client.on('message', this.onMessage.bind(this));
     this.client.on('error', err => console.error(err.message));
     this.client.on('close', (code, reason) => {

@@ -6,7 +6,8 @@ const DBUS_SERVICE_NAME = 'org.freedesktop.DBus';
 const DBUS_INTERFACE_NAME = 'org.freedesktop.DBus';
 const DBUS_OBJECT_PATH = '/org/freedesktop/DBus';
 const NAME_OWNER_CHANGED_NAME = 'NameOwnerChanged';
-const OBJECT_MANAGER_INTERFACE_NAME = 'org.freedesktop.DBus.ObjectManager';
+const OBJECT_MANAGER_INTERFACE_NAME = `${DBUS_SERVICE_NAME}.ObjectManager`;
+const PROPERTIES_INTERFACE_NAME = `${DBUS_SERVICE_NAME}.Properties`;
 const OBJECT_PATH = '/';
 
 const SERVICE_NAME = 'br.org.cesar.modbus';
@@ -92,15 +93,33 @@ class DbusServices {
     this.slaves = _.concat(this.slaves, slave);
   }
 
+  async monitorSlaveProperties(slave, objPath) {
+    const iface = await this.getInterface(SERVICE_NAME, objPath, PROPERTIES_INTERFACE_NAME);
+    iface.on('PropertiesChanged', (changedInterface, properties) => {
+      if (changedInterface === SLAVE_INTERFACE_NAME) {
+        const changedProperties = setKeysToLowerCase(properties);
+        console.log(`Changes to slave ${slave.id}: ${JSON.stringify(changedProperties)}`);
+        _.merge(slave, changedProperties);
+        if (this.updatedCb) {
+          this.updatedCb(slave.id, changedProperties);
+        }
+      }
+    });
+    console.log(`Monitoring slave ${slave.id} properties`);
+  }
+
   async startSlaveMonitoring() {
     const iface = await this.getInterface(SERVICE_NAME, OBJECT_PATH, OBJECT_MANAGER_INTERFACE_NAME);
     await this.loadSlaves();
-    iface.on('InterfacesAdded', (objPath, addedInterface) => {
+    this.slaves.forEach(slave => this.monitorSlaveProperties(slave, this.idPathMap[slave.id]));
+
+    iface.on('InterfacesAdded', async (objPath, addedInterface) => {
       const slave = mapInterfaceToSlave(addedInterface);
       // The slave can be undefined if the interface added is not DEVICE_INTERFACE
       if (slave) {
         console.log('Slave added:', slave);
         this.addSlave(slave, objPath);
+        await this.monitorSlaveProperties(slave, objPath);
         if (this.addedCb) {
           this.addedCb(slave);
         }

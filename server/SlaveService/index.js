@@ -30,6 +30,10 @@ class SlaveService {
   onRemoved(removedCb) {
     this.service.removedCb = removedCb;
   }
+
+  onUpdated(updatedCb) {
+    this.service.updatedCb = updatedCb;
+  }
 }
 
 export default SlaveService;
