@@ -1,8 +1,6 @@
 {
     "protocol": "DBUS",
-    "slave": {
-        "address": "tcp:host=localhost,port=55556"
-    },
+    "slave": {},
     "server": {
         "host": "localhost",
         "port": "3004"

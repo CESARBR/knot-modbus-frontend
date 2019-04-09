@@ -13,6 +13,7 @@ const OBJECT_PATH = '/';
 
 const SERVICE_NAME = 'br.org.cesar.modbus';
 const SLAVE_INTERFACE_NAME = `${SERVICE_NAME}.Slave1`;
+const SOURCE_INTERFACE_NAME = `${SERVICE_NAME}.Source1`;
 
 const INVALID_ARGUMENTS = `${SERVICE_NAME}.InvalidArgs`;
 
@@ -32,6 +33,14 @@ function mapObjectsToIdPath(objects) {
     .pickBy(object => _.has(object, SLAVE_INTERFACE_NAME))
     .mapValues(iface => _.get(iface[SLAVE_INTERFACE_NAME], 'Id'))
     .invert()
+    .value();
+}
+
+function mapObjectstoSources(objects, idPathMap, id) {
+  const slaveId = _.pickBy(objects, (value, key) => _.startsWith(key, idPathMap[id]));
+  const pathSources = _.pickBy(slaveId, value => _.has(value, SOURCE_INTERFACE_NAME));
+  return _.chain(pathSources)
+    .map(object => setKeysToLowerCase(object[SOURCE_INTERFACE_NAME]))
     .value();
 }
 
@@ -63,6 +72,7 @@ class DbusServices {
     this.getInterface = promisify(this.bus.getInterface.bind(this.bus));
     this.slaves = [];
     this.idPathMap = {};
+    this.idSourcesMap = {};
     this.started = false;
   }
 
@@ -72,6 +82,10 @@ class DbusServices {
     const objects = await getManagedObjects();
     this.slaves = await mapObjectsToSlaves(objects);
     this.idPathMap = await mapObjectsToIdPath(objects);
+    this.slaves.forEach((slave) => {
+      const sources = mapObjectstoSources(objects, this.idPathMap, slave.id);
+      this.idSourcesMap[slave.id] = sources;
+    });
   }
 
   removeSlave(path) {
@@ -185,6 +199,10 @@ class DbusServices {
       throw error;
     }
     return slave;
+  }
+
+  listSources(id) {
+    return this.idSourcesMap[id];
   }
 }
 

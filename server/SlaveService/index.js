@@ -23,6 +23,10 @@ class SlaveService {
     return this.service.get(id);
   }
 
+  listSources(id) {
+    return this.service.listSources(id);
+  }
+
   onAdded(addedCb) {
     this.service.addedCb = addedCb;
   }
