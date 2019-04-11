@@ -65,6 +65,13 @@ class App extends Component {
     const { renderCard, openSnack, messageSnack } = this.state;
     return (
       <div className="App">
+        <AppBar position="static">
+          <Toolbar>
+            <Typography variant="h6" color="inherit">
+              KNoT Modbus
+            </Typography>
+          </Toolbar>
+        </AppBar>
         <Button className="load-button" onClick={() => this.onClicked()} variant="contained" color="primary">
           Load slaves
         </Button>
