@@ -32,6 +32,9 @@ class ConnectionHandler {
         case 'getSlave':
           frame = this.buildFrame('slave', this.slaveService.get(Number(data.id)));
           break;
+        case 'listSources':
+          frame = this.buildFrame('sources', this.slaveService.listSources(Number(data.id)));
+          break;
         default:
           console.error(`Unknown event type '${type}'`);
           break;
