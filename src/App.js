@@ -22,10 +22,33 @@ class App extends Component {
     slaveSrv.listSlaves()
       .then((slaves) => {
         this.setState({ renderCard: true, slaves });
+        this.monitorSlaves();
       })
       .catch((err) => {
         this.setState({ openSnack: true, messageSnack: err.message });
       });
+  }
+
+  monitorSlaves() {
+    const { slaveSrv, slaves } = this.state;
+
+    slaveSrv.on('slaveRemoved', (id) => {
+      slaves.splice(slaves.findIndex(slave => slave.id === id), 1);
+      this.setState({ slaves });
+    });
+
+    slaveSrv.on('slaveAdded', (slave) => {
+      slaves.push(slave);
+      this.setState({ slaves });
+    });
+
+    slaveSrv.on('slaveUpdated', ({ id, properties }) => {
+      const slave = slaves.find(slv => slv.id === Number(id));
+      if (slave) {
+        Object.assign(slave, properties);
+        this.setState({ slaves });
+      }
+    });
   }
 
   renderCardSlaves() {

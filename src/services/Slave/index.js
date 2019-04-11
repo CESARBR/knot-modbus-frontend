@@ -60,7 +60,6 @@ class SlaveService extends EventEmitter {
       reject(new Error('Connection is no opened'));
     });
   }
-  // TODO: listen to events: slaveAdded, slaveRemoved and SlaveUpdated
 }
 
 export default SlaveService;
