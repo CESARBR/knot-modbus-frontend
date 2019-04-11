@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
+import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
 import SlaveService from './services/Slave';
@@ -53,7 +54,11 @@ class App extends Component {
 
   renderCardSlaves() {
     const { slaves } = this.state;
-    return slaves.map(slave => <SlaveCard key={slave.id} slave={slave} />);
+    return (
+      <Grid container>
+        { slaves.map(slave => <SlaveCard key={slave.id} slave={slave} />) }
+      </Grid>
+    );
   }
 
   render() {
