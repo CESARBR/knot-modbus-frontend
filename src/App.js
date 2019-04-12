@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import './App.css';
 import Grid from '@material-ui/core/Grid';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
 import SlaveService from './services/Slave';
@@ -22,6 +25,7 @@ class App extends Component {
     const { slaveSrv } = this.state;
     slaveSrv.listSlaves()
       .then((slaves) => {
+        slaves.forEach((slave) => { slave.expanded = false; });
         this.setState({ renderCard: true, slaves });
         this.monitorSlaves();
       })
@@ -39,6 +43,7 @@ class App extends Component {
     });
 
     slaveSrv.on('slaveAdded', (slave) => {
+      slave.expanded = false;
       slaves.push(slave);
       this.setState({ slaves });
     });
@@ -52,11 +57,21 @@ class App extends Component {
     });
   }
 
+  async renderSources(slaveId) {
+    const { slaves } = this.state;
+    const slave = slaves.find(slv => slv.id === slaveId);
+    slave.expanded = !slave.expanded;
+    this.setState({ slaves });
+  }
+
   renderCardSlaves() {
     const { slaves } = this.state;
     return (
       <Grid container>
-        { slaves.map(slave => <SlaveCard key={slave.id} slave={slave} />) }
+        { slaves.map(slave => (
+          <SlaveCard key={slave.id} slave={slave} onExpanded={() => this.renderSources(slave.id)} />
+        ))
+        }
       </Grid>
     );
   }

@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@material-ui/core": "^3.9.2",
+    "@material-ui/icons": "^3.0.2",
     "config": "^3.0.1",
     "dbus": "^1.0.3",
     "eslint-config-airbnb": "^17.1.0",
