@@ -4,7 +4,6 @@ import Grid from '@material-ui/core/Grid';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
 import SlaveService from './services/Slave';
 import SlaveCard from './components/SlaveCard';
@@ -21,7 +20,16 @@ class App extends Component {
     };
   }
 
-  onClicked() {
+  componentDidMount() {
+    const { slaveSrv } = this.state;
+    this.timer = slaveSrv.once('open', () => {
+      this.listSlaves();
+    });
+    // TODO: if not opened show a message to the user,
+    // like to refresh page or a spinner with a timeout to try again
+  }
+
+  listSlaves() {
     const { slaveSrv } = this.state;
     slaveSrv.listSlaves()
       .then((slaves) => {
@@ -87,9 +95,6 @@ class App extends Component {
             </Typography>
           </Toolbar>
         </AppBar>
-        <Button className="load-button" onClick={() => this.onClicked()} variant="contained" color="primary">
-          Load slaves
-        </Button>
         <Snackbar
           anchorOrigin={{
             vertical: 'bottom',
