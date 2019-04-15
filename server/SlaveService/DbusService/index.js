@@ -21,10 +21,10 @@ function setKeysToLowerCase(obj) {
   return _.mapKeys(obj, (v, k) => k.toLowerCase());
 }
 
-function mapObjectsToSlaves(objects) {
+function mapObjectsByIface(objects, iface) {
   return _.chain(objects)
-    .pickBy(object => _.has(object, SLAVE_INTERFACE_NAME))
-    .map(object => setKeysToLowerCase(object[SLAVE_INTERFACE_NAME]))
+    .pickBy(object => _.has(object, iface))
+    .map(object => setKeysToLowerCase(object[iface]))
     .value();
 }
 
@@ -36,7 +36,7 @@ function mapObjectsToIdPath(objects) {
     .value();
 }
 
-function mapObjectstoSources(objects, idPathMap, id) {
+function mapObjectsToSources(objects, idPathMap, id) {
   const slaveId = _.pickBy(objects, (value, key) => _.startsWith(key, idPathMap[id]));
   const pathSources = _.pickBy(slaveId, value => _.has(value, SOURCE_INTERFACE_NAME));
   return _.chain(pathSources)
@@ -45,7 +45,11 @@ function mapObjectstoSources(objects, idPathMap, id) {
 }
 
 function mapInterfaceToSlave(iface) {
-  return mapObjectsToSlaves([iface])[0];
+  return mapObjectsByIface([iface], SLAVE_INTERFACE_NAME)[0];
+}
+
+function mapInterfaceToSource(iface) {
+  return mapObjectsByIface([iface], SOURCE_INTERFACE_NAME)[0];
 }
 
 function parseDbusError(err) {
@@ -80,10 +84,10 @@ class DbusServices {
     const iface = await this.getInterface(SERVICE_NAME, OBJECT_PATH, OBJECT_MANAGER_INTERFACE_NAME);
     const getManagedObjects = promisify(iface.GetManagedObjects.bind(iface));
     const objects = await getManagedObjects();
-    this.slaves = await mapObjectsToSlaves(objects);
+    this.slaves = await mapObjectsByIface(objects, SLAVE_INTERFACE_NAME);
     this.idPathMap = await mapObjectsToIdPath(objects);
     this.slaves.forEach((slave) => {
-      const sources = mapObjectstoSources(objects, this.idPathMap, slave.id);
+      const sources = mapObjectsToSources(objects, this.idPathMap, slave.id);
       this.idSourcesMap[slave.id] = sources;
     });
   }
@@ -106,6 +110,13 @@ class DbusServices {
     }
     this.idPathMap[slave.id] = path;
     this.slaves = _.concat(this.slaves, slave);
+  }
+
+  addSource(source, slaveId) {
+    if (_.has(this.idSourcesMap, source.address)) {
+      // TODO: Remove old source with same id
+    }
+    this.idSourcesMap[slaveId].push(source);
   }
 
   async monitorSlaveProperties(slave, objPath) {
@@ -137,6 +148,12 @@ class DbusServices {
         await this.monitorSlaveProperties(slave, objPath);
         if (this.addedCb) {
           this.addedCb(slave);
+        }
+      } else {
+        const slaveId = _.findKey(this.idPathMap, path => _.startsWith(objPath, path));
+        const source = mapInterfaceToSource(addedInterface);
+        if (source) {
+          this.addSource(source, slaveId);
         }
       }
     });
