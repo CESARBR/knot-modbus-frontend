@@ -40,6 +40,7 @@ function mapObjectsToSources(objects, idPathMap, id) {
   const slaveId = _.pickBy(objects, (value, key) => _.startsWith(key, idPathMap[id]));
   const pathSources = _.pickBy(slaveId, value => _.has(value, SOURCE_INTERFACE_NAME));
   return _.chain(pathSources)
+    .mapValues((object, path) => { object[SOURCE_INTERFACE_NAME].path = path; return object; })
     .map(object => setKeysToLowerCase(object[SOURCE_INTERFACE_NAME]))
     .value();
 }
@@ -112,11 +113,21 @@ class DbusServices {
     this.slaves = _.concat(this.slaves, slave);
   }
 
-  addSource(source, slaveId) {
-    if (_.has(this.idSourcesMap, source.address)) {
-      // TODO: Remove old source with same id
+  removeSource(path) {
+    const slave = _.find(this.slaves, slv => _.startsWith(path, this.idPathMap[slv.id]));
+    if (slave) {
+      const sources = this.idSourcesMap[slave.id];
+      _.remove(sources, src => src.path === path);
     }
-    this.idSourcesMap[slaveId].push(source);
+  }
+
+  addSource(source, slaveId) {
+    const sources = this.idSourcesMap[slaveId];
+    if (_.find(sources, src => source.address === src.address)) {
+      // Remove old source with same id
+      this.removeSource(source, slaveId);
+    }
+    sources.push(source);
   }
 
   async monitorSlaveProperties(slave, objPath) {
@@ -152,12 +163,17 @@ class DbusServices {
       } else {
         const slaveId = _.findKey(this.idPathMap, path => _.startsWith(objPath, path));
         const source = mapInterfaceToSource(addedInterface);
+        source.path = objPath;
+
         if (source) {
           this.addSource(source, slaveId);
         }
       }
     });
-    iface.on('InterfacesRemoved', objPath => this.removeSlave(objPath));
+    iface.on('InterfacesRemoved', (objPath) => {
+      this.removeSlave(objPath);
+      this.removeSource(objPath);
+    });
 
     console.log('Monitoring slaves being added and removed');
     this.started = true;
