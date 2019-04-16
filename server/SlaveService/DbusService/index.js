@@ -153,6 +153,10 @@ class DbusServices {
         const sources = this.idSourcesMap[slave.id];
         const source = _.find(sources, src => src.path === objPath);
         console.log(`Changes to source ${source.address}: ${JSON.stringify(changedProperties)}`);
+        _.merge(source, changedProperties);
+        if (this.sourceUpdateCb) {
+          this.sourceUpdateCb(slave.id, source.address, changedProperties);
+        }
       }
     });
     console.log(`Monitoring source properties in path ${objPath}`);

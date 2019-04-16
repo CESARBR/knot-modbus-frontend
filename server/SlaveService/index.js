@@ -38,6 +38,10 @@ class SlaveService {
   onUpdated(updatedCb) {
     this.service.updatedCb = updatedCb;
   }
+
+  onSourceUpdated(sourceUpdateCb) {
+    this.service.sourceUpdateCb = sourceUpdateCb;
+  }
 }
 
 export default SlaveService;

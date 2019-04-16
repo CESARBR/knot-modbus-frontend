@@ -63,13 +63,28 @@ class App extends Component {
         this.setState({ slaves });
       }
     });
+
+    slaveSrv.on('sourceUpdated', ({ id, addr, properties }) => {
+      const slave = slaves.find(slv => slv.id === Number(id));
+      if (slave && slave.sources) {
+        const source = slave.sources.find(src => src.address === addr);
+        Object.assign(source, properties);
+        this.setState({ slaves });
+      }
+    });
   }
 
   async renderSources(slaveId) {
-    const { slaves } = this.state;
+    const { slaves, slaveSrv } = this.state;
     const slave = slaves.find(slv => slv.id === slaveId);
-    slave.expanded = !slave.expanded;
-    this.setState({ slaves });
+    try {
+      const sources = await slaveSrv.listSources(slave.id);
+      slave.sources = sources;
+      slave.expanded = !slave.expanded;
+      this.setState({ slaves });
+    } catch (err) {
+      this.setState({ openSnack: true, messageSnack: err.message });
+    }
   }
 
   renderCardSlaves() {

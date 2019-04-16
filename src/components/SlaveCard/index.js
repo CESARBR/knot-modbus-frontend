@@ -8,6 +8,7 @@ import IconButton from '@material-ui/core/IconButton';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import Typography from '@material-ui/core/Typography';
+import SourceList from './SourceList';
 import './styles.css';
 
 const SlaveCard = ({ slave, onExpanded }) => (
@@ -34,7 +35,7 @@ const SlaveCard = ({ slave, onExpanded }) => (
       </CardActions>
       <Collapse in={slave.expanded} timeout="auto" unmountOnExit>
         <CardContent>
-          {/* TODO: List sources */}
+          { slave.sources ? <SourceList sources={slave.sources} /> : null }
         </CardContent>
       </Collapse>
     </CardContent>
@@ -46,7 +47,8 @@ SlaveCard.propTypes = {
     name: PropTypes.string.isRequired,
     id: PropTypes.number.isRequired,
     enable: PropTypes.bool.isRequired,
-    expanded: PropTypes.bool.isRequired
+    expanded: PropTypes.bool.isRequired,
+    sources: PropTypes.array
   }).isRequired,
   onExpanded: PropTypes.func.isRequired
 };
