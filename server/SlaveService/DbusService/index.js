@@ -145,10 +145,27 @@ class DbusServices {
     console.log(`Monitoring slave ${slave.id} properties`);
   }
 
+  async monitorSourceProperties(slave, objPath) {
+    const iface = await this.getInterface(SERVICE_NAME, objPath, PROPERTIES_INTERFACE_NAME);
+    iface.on('PropertiesChanged', (changedInterface, properties) => {
+      if (changedInterface === SOURCE_INTERFACE_NAME) {
+        const changedProperties = setKeysToLowerCase(properties);
+        const sources = this.idSourcesMap[slave.id];
+        const source = _.find(sources, src => src.path === objPath);
+        console.log(`Changes to source ${source.address}: ${JSON.stringify(changedProperties)}`);
+      }
+    });
+    console.log(`Monitoring source properties in path ${objPath}`);
+  }
+
   async startSlaveMonitoring() {
     const iface = await this.getInterface(SERVICE_NAME, OBJECT_PATH, OBJECT_MANAGER_INTERFACE_NAME);
     await this.loadSlaves();
-    this.slaves.forEach(slave => this.monitorSlaveProperties(slave, this.idPathMap[slave.id]));
+    this.slaves.forEach((slave) => {
+      const sources = this.idSourcesMap[slave.id];
+      this.monitorSlaveProperties(slave, this.idPathMap[slave.id]);
+      sources.forEach(source => this.monitorSourceProperties(slave, source.path));
+    });
 
     iface.on('InterfacesAdded', async (objPath, addedInterface) => {
       const slave = mapInterfaceToSlave(addedInterface);
