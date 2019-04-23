@@ -12,16 +12,16 @@ import SourceList from './SourceList';
 import './styles.css';
 
 const SlaveCard = ({ slave, onExpanded }) => (
-  <Card className="slave-card">
+  <Card className={slave.online ? 'slave-card' : 'slave-card slave-card-offline'}>
     <CardContent>
       <Typography component="h2" variant="h5">
         {slave.name}
       </Typography>
-      <Typography color="textSecondary" gutterBottom>
-        {`Id: ${slave.id}`}
+      <Typography component="p" color={!slave.online ? 'textSecondary' : ''}>
+        {`${slave.online ? 'Online' : 'Offline'}`}
       </Typography>
-      <Typography component="p">
-        {`Enable: ${slave.enable ? 'true' : 'false'}`}
+      <Typography color="textSecondary">
+        {`Id: ${slave.id}`}
       </Typography>
       <CardActions>
         <IconButton
@@ -46,7 +46,7 @@ SlaveCard.propTypes = {
   slave: PropTypes.shape({
     name: PropTypes.string.isRequired,
     id: PropTypes.number.isRequired,
-    enable: PropTypes.bool.isRequired,
+    online: PropTypes.bool.isRequired,
     expanded: PropTypes.bool.isRequired,
     sources: PropTypes.array
   }).isRequired,
