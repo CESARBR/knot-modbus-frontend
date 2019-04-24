@@ -1,14 +1,19 @@
 import WebSocket from 'isomorphic-ws';
 import EventEmitter from 'eventemitter3';
 
+const MINIMUM_BACKOFF_TIME_SEC = 1;
+const MAXIMUM_BACKOFF_TIME_SEC = 32;
+
 const PROXY_EVENTS = ['close', 'error', 'unexpected-response', 'ping', 'pong', 'open'];
 
 class SlaveService extends EventEmitter {
   constructor() {
     super();
-    if (this.socket) {
-      this.socket.close();
-    }
+    this.retries = 0;
+    this.backOffTimeSec = MINIMUM_BACKOFF_TIME_SEC;
+  }
+
+  connect() {
     const { hostname } = window.location;
     const port = window.location.protocol === 'https:' ? 443 : 3004;
     this.socket = new WebSocket(`ws://${hostname}:${port}/ws`);
@@ -17,15 +22,39 @@ class SlaveService extends EventEmitter {
       this.isOpen = true;
       this.socket.removeEventListener('open', onOpen);
     };
+
     this.socket.addEventListener('open', onOpen);
-    this.socket.addEventListener('close', () => {
-      this.isOpen = false;
-      // TODO: handle reconnection if is an abnormal closure
-      this.socket.close();
-    });
+    const onClose = (e) => {
+      switch (e.code) {
+        case 1001: // NORMAL_CLOSE
+          console.log('NORMAL_CLOSE');
+          this.close();
+          break;
+        default: // ABNORMAL CLOSURE
+          console.log('ABNORMAL CLOSURE');
+          this.reconnect();
+          break;
+      }
+    };
+
+    this.socket.addEventListener('close', onClose);
     PROXY_EVENTS.forEach((eventName) => {
       this.socket.addEventListener(eventName, event => this.emit(eventName, event));
     });
+  }
+
+  reconnect() {
+    this.emit('reconnect');
+    if (this.retries === 0) {
+      this.delayMs = Math.random();
+    } else {
+      this.delayMs = 1000 * (this.backOffTimeSec + Math.random());
+      if (this.backOffTimeSec < MAXIMUM_BACKOFF_TIME_SEC) {
+        this.backOffTimeSec *= 2;
+      }
+    }
+    setTimeout(this.connect.bind(this), this.delayMs);
+    this.retries += 1;
   }
 
   handleMessage(event) {
