@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unused-state */
 import React, { Component } from 'react';
 import './App.css';
 import Grid from '@material-ui/core/Grid';
@@ -5,6 +6,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Snackbar from '@material-ui/core/Snackbar';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import SlaveService from './services/Slave';
 import SlaveCard from './components/SlaveCard';
 
@@ -22,11 +24,22 @@ class App extends Component {
 
   componentDidMount() {
     const { slaveSrv } = this.state;
-    this.timer = slaveSrv.once('open', () => {
+    slaveSrv.connect();
+    this.timer = slaveSrv.on('open', () => {
+      console.log('connection opened, listing slaves...');
       this.listSlaves();
     });
     // TODO: if not opened show a message to the user,
     // like to refresh page or a spinner with a timeout to try again
+    this.timer = slaveSrv.on('close', () => {
+      console.log('connection closed, show feedback');
+      this.setState({ renderCard: false });
+      this.renderCircularProgress();
+      setTimeout(() => {
+        console.log('try reconnect...');
+        slaveSrv.reconnect();
+      }, 1000);
+    });
   }
 
   listSlaves() {
@@ -38,7 +51,7 @@ class App extends Component {
         this.monitorSlaves();
       })
       .catch((err) => {
-        this.setState({ openSnack: true, messageSnack: err.message });
+        this.setState({ openSnack: true, messageSnack: err.message, show: true });
       });
   }
 
@@ -101,6 +114,12 @@ class App extends Component {
     );
   }
 
+  renderCircularProgress() {
+    return (
+      <CircularProgress variant="indeterminate" />
+    );
+  }
+
   render() {
     const { renderCard, openSnack, messageSnack } = this.state;
     return (
@@ -123,7 +142,9 @@ class App extends Component {
           message={messageSnack}
         />
 
-        { renderCard === true ? this.renderCardSlaves() : null }
+        { renderCard === true ? this.renderCardSlaves() : this.renderCircularProgress() }
+
+
       </div>
     );
   }
