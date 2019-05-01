@@ -23,3 +23,5 @@ app.get('*', (req, res) => {
 });
 
 wss.start();
+
+app.listen(process.env.PORT || 80);
