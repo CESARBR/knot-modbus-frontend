@@ -164,6 +164,7 @@ class DbusServices {
 
   async startSlaveMonitoring() {
     const iface = await this.getInterface(SERVICE_NAME, OBJECT_PATH, OBJECT_MANAGER_INTERFACE_NAME);
+    this.ifaceMonitored = iface;
     await this.loadSlaves();
     this.slaves.forEach((slave) => {
       const sources = this.idSourcesMap[slave.id];
@@ -184,9 +185,9 @@ class DbusServices {
       } else {
         const slaveId = _.findKey(this.idPathMap, path => _.startsWith(objPath, path));
         const source = mapInterfaceToSource(addedInterface);
-        source.path = objPath;
 
         if (source) {
+          source.path = objPath;
           this.addSource(source, slaveId);
         }
       }
@@ -201,6 +202,7 @@ class DbusServices {
   }
 
   async stopSlaveMonitoring() {
+    this.ifaceMonitored.removeAllListeners();
     this.slaves = [];
     this.idPathMap = {};
     this.started = false;

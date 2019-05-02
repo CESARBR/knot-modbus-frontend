@@ -51,9 +51,11 @@ class App extends Component {
     });
 
     slaveSrv.on('slaveAdded', (slave) => {
-      slave.expanded = false;
-      slaves.push(slave);
-      this.setState({ slaves });
+      if (!slaves.some(slv => slv.id === slave.id)) {
+        slave.expanded = false;
+        slaves.push(slave);
+        this.setState({ slaves });
+      }
     });
 
     slaveSrv.on('slaveUpdated', ({ id, properties }) => {
