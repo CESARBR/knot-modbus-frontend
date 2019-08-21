@@ -15,7 +15,7 @@ class SlaveService extends EventEmitter {
 
   connect() {
     const { hostname } = window.location;
-    const port = window.location.protocol === 'https:' ? 443 : 3004;
+    const port = window.location.protocol === 'http:' ? 80 : 3004;
     this.socket = new WebSocket(`ws://${hostname}:${port}/ws`);
     this.socket.addEventListener('message', this.handleMessage.bind(this));
     const onOpen = () => {
