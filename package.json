@@ -19,7 +19,7 @@
     "react-dom": "^16.8.4",
     "react-scripts": "2.1.8",
     "shortid": "^2.2.14",
-    "ws": "^6.2.1"
+    "ws": "^7.4.6"
   },
   "scripts": {
     "start": "react-scripts start",
